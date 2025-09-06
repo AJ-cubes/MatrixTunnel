@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Matrix Tunnel",
+  "version": "3.9",
+  "description": "A Matrix-style screensaver where glowing binary digits spiral inward through a digital vortex, leaving fading trails as they vanish into the void.",
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "permissions": [],
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  }
+}
