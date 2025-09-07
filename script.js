@@ -52,23 +52,22 @@ for (let i = 0; i < particleCount; i++) {
     });
 }
 
-let batteryInfo = { level: 1, charging: false };
+let batteryInfo = { level: 1, charging: true, supported: false };
 
-navigator.getBattery().then(battery => {
-    batteryInfo = {
-        level: battery.level,
-        charging: battery.charging
-    };
-
-    battery.addEventListener('levelchange', () => {
+if ('getBattery' in navigator) {
+    navigator.getBattery().then(battery => {
+        batteryInfo.supported = true;
         batteryInfo.level = battery.level;
-    });
-
-    battery.addEventListener('chargingchange', () => {
         batteryInfo.charging = battery.charging;
-    });
-});
 
+        battery.addEventListener('levelchange', () => {
+            batteryInfo.level = battery.level;
+        });
+        battery.addEventListener('chargingchange', () => {
+            batteryInfo.charging = battery.charging;
+        });
+    });
+}
 
 function hexToRgb(hex) {
     const bigint = parseInt(hex.slice(1), 16);
@@ -95,11 +94,15 @@ function drawTimeBox() {
     ctx.font = `bold ${timeFontSize}px monospace`;
     const timeWidth = ctx.measureText(timeStr).width;
 
-    ctx.font = `bold ${batteryFontSize}px monospace`;
-    const batteryWidth = ctx.measureText(batteryStr).width;
+    let boxWidth = timeWidth + padding * 2;
+    let boxHeight = timeFontSize + padding * 2;
 
-    const boxWidth = Math.max(timeWidth, batteryWidth) + padding * 2;
-    const boxHeight = timeFontSize + batteryFontSize + spacing + padding * 2;
+    if (batteryInfo.supported) {
+        ctx.font = `bold ${batteryFontSize}px monospace`;
+        const batteryWidth = ctx.measureText(batteryStr).width;
+        boxWidth = Math.max(boxWidth, batteryWidth + padding * 2);
+        boxHeight += batteryFontSize + spacing;
+    }
 
     const x = (canvas.width - boxWidth) / 2;
     const y = (canvas.height - boxHeight) / 2;
@@ -135,8 +138,10 @@ function drawTimeBox() {
     ctx.font = `bold ${timeFontSize}px monospace`;
     ctx.fillText(timeStr, centerX, y + padding);
 
-    ctx.font = `bold ${batteryFontSize}px monospace`;
-    ctx.fillText(batteryStr, centerX, y + padding + timeFontSize + spacing);
+    if (batteryInfo.supported) {
+        ctx.font = `bold ${batteryFontSize}px monospace`;
+        ctx.fillText(batteryStr, centerX, y + padding + timeFontSize + spacing);
+    }
 
     ctx.restore();
 }
